@@ -24,7 +24,7 @@ class RAGBase:
         instructions=INSTRUCTIONS,
         prompt_template=PROMPT_TEMPLATE,
         course='llm-zoomcamp',
-        model='gpt-5.4-mini'
+        model='openai/gpt-oss-20b'
     ):
         self.index = index
         self.llm_client = llm_client
@@ -57,25 +57,35 @@ class RAGBase:
 
     def build_prompt(self, query, search_results):
         context = self.build_context(search_results)
+
         return self.prompt_template.format(
-            question=query, context=context
+            question=query,
+            context=context
         )
 
     def llm(self, prompt):
         input_messages = [
-            {'role': 'developer', 'content': self.instructions},
-            {'role': 'user', 'content': prompt}
+            {
+                'role': 'system',
+                'content': self.instructions
+            },
+            {
+                'role': 'user',
+                'content': prompt
+            }
         ]
 
-        response = self.llm_client.responses.create(
+        response = self.llm_client.chat.completions.create(
             model=self.model,
-            input=input_messages
+            messages=input_messages,
+            temperature=0
         )
 
-        return response.output_text
+        return response.choices[0].message.content
 
     def rag(self, query):
         search_results = self.search(query)
         prompt = self.build_prompt(query, search_results)
         answer = self.llm(prompt)
+
         return answer
