@@ -74,6 +74,11 @@ def init_feedback():
         conn.close()
 
 
+# if __name__ == "__main__":
+#     init_feedback()
+#     print("Feedback table initialized")
+
 if __name__ == "__main__":
+    init_db()
     init_feedback()
-    print("Feedback table initialized")
+    print("Database initialized")
